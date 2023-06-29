@@ -63,21 +63,7 @@ const isEditingModalOpen = ref(false);
 const isDeletingModalOpen = ref(false);
 const isTextShown = ref(false);
 const boxCounts = ref(5);
-const notes = ref([
-  {
-    title: "Note Title",
-    text: "Note text body",
-  },
-  {
-    title: "Learn A.I",
-    text: "This is the future",
-  },
-]);
-const getData = async () => {
-  const { data } = await axios.get("http://localhost:3000/notes");
-  notes.value = data.notes;
-};
-onMounted(getData);
+const notes = ref([]);
 const editingNote = ref();
 
 const removeNote = async (note) => {
@@ -98,13 +84,21 @@ const removeNote = async (note) => {
 };
 
 const addNote = async (note) => {
+  console.log(note)
+  try{const {data} = await axios.post("http://localhost:3000/notes",null,{
+    params:{
+      ...note
+    }
+  });
+  console.log(data);
+}catch (error){
+  console.error("Error not adding note", error);
+}
   notes.value.push(note);
   isEditingModalOpen.value = false;
-  await axios.post("http://localhost:3000/notes", {
-    title: note.title,
-    text: note.text,
-  });
 };
+
+
 const editNote = async (note) => {
   try {
     await axios.patch(`http://localhost:3000/api/v1/nodes/${note.id}`, {
@@ -112,7 +106,7 @@ const editNote = async (note) => {
       text: note.text,
     }); // Send the updated note object in the PATCH request
 
-    const index = notes.value.indexOf(editingNote.value);
+    const index = notes. value.indexOf(editingNote.value);
     notes.value[index] = note;
     editingNote.value = null;
     isEditingModalOpen.value = false;
@@ -130,4 +124,13 @@ const handleModalClose = () => {
   isEditingModalOpen.value = false;
   editingNote.value = null;
 };
+
+const getData = async () => {
+  const { data } = await axios.get("http://localhost:3000/notes");
+  notes.value = data.notes;
+  console.log(data.notes);
+};
+onMounted(() => {
+    getData();
+})
 </script>
